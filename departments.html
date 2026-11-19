@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><title>페이지 이동 | 길잡이</title>
+<script>
+  const destinations = {"default":"organization.html#roles","administration":"organization.html#administration","external-relations":"organization.html#external-relations","research":"organization.html#research","education":"organization.html#education","social-innovation":"organization.html#social-innovation"};
+  const anchor = location.hash.slice(1);
+  location.replace(Object.hasOwn(destinations, anchor) ? destinations[anchor] : destinations.default);
+</script>
+<p><a href="organization.html#roles">새 페이지 열기</a></p>
+</html>

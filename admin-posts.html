@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="자치교육사회적협동조합 길잡이의 교육과 활동을 소개합니다.">
+  <title>관리자 | 길잡이</title>
+  <link rel="stylesheet" href="styles.css">
+  
+  
+  <script src="navigation.js" defer></script>
+  <script src="content-api.js" defer></script>
+  <script src="preview-posts.js" defer></script>
+  <script src="site.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문 바로 가기</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html" aria-label="자치교육사회적협동조합 길잡이 홈"><img src="logo.png" alt="" width="1031" height="300"></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav"><span></span><span></span><span class="sr-only">전체 메뉴</span></button>
+      <nav id="primary-nav" aria-label="주 메뉴">
+        <ul class="top-menu"><li><button type="button" data-menu-column="0" aria-expanded="false" aria-controls="mega-menu">길잡이 소개</button></li><li><button type="button" data-menu-column="1" aria-expanded="false" aria-controls="mega-menu">소식</button></li><li><button type="button" data-menu-column="2" aria-expanded="false" aria-controls="mega-menu">자료실</button></li><li><button type="button" data-menu-column="3" aria-expanded="false" aria-controls="mega-menu">함께하기</button></li><li><button type="button" data-menu-column="4" aria-expanded="false" aria-controls="mega-menu">SNS</button></li></ul>
+        <div id="mega-menu" class="mega-panel" inert>
+          <div class="mega-grid">
+            <div class="mega-column" role="group" aria-label="길잡이 소개"><h2 aria-hidden="true">길잡이 소개</h2><ul><li><a href="origin.html">길잡이의 시작</a></li><li><a href="organization.html">조직도</a></li></ul></div><div class="mega-column" role="group" aria-label="소식"><h2 aria-hidden="true">소식</h2><ul><li><a href="notices.html">공지사항</a></li><li><a href="participation-guide.html">행사 신청</a></li></ul></div><div class="mega-column" role="group" aria-label="자료실"><h2 aria-hidden="true">자료실</h2><ul><li><a href="publications-board.html">책과 발간물</a></li><li><a href="activity-board.html">활동 기록</a></li></ul></div><div class="mega-column" role="group" aria-label="함께하기"><h2 aria-hidden="true">함께하기</h2><ul><li><a href="contact.html">교육·협업 문의</a></li><li><a href="member.html">조합원 가입</a></li><li><a href="support.html">후원 안내</a></li></ul></div><div class="mega-column mega-social" role="group" aria-label="SNS"><h2 aria-hidden="true">SNS</h2><ul><li><a href="https://www.instagram.com/jachicoop/"><img class="channel-icon" src="social-instagram.png" width="20" height="20" alt="">인스타그램</a></li><li><a href="https://cafe.naver.com/educircle"><img class="channel-icon" src="social-naver-cafe.png" width="20" height="20" alt="">네이버 카페</a></li><li><a href="https://pf.kakao.com/_HxfZFX"><img class="channel-icon" src="social-kakao.png" width="20" height="20" alt="">카카오톡 채널</a></li><li><span class="channel-pending"><img class="channel-icon" src="social-naver-store.png" width="20" height="20" alt=""><span>네이버스토어 <small>준비 중</small></span></span></li></ul></div>
+          </div>
+        </div>
+      </nav>
+      <a class="button button-small header-action" href="contact.html">교육·협업 문의</a>
+    </div>
+  </header>
+  <main id="main"><div class="subpage admin-page">
+    <section class="page-hero"><div class="wrap">
+      <h1 data-admin-signed-out>관리자 로그인</h1>
+      <h1 data-editor-title data-admin-only hidden>게시글 관리</h1>
+    </div></section>
+    <div class="wrap page-body">
+      <section class="page-section admin-access" aria-label="관리자 도구">
+        <form class="preview-form admin-sign-in" method="post" action="/api/session" data-admin-signed-out data-admin-login>
+          <label>아이디<input name="username" value="jachicoop" autocomplete="username" maxlength="64" required></label>
+          <label data-admin-setup hidden>초기 설정 코드<input name="setupCode" type="password" autocomplete="off" maxlength="64"></label>
+          <label>비밀번호<input name="password" type="password" autocomplete="current-password" maxlength="256" required></label>
+          <div class="form-actions"><button type="submit" class="button" disabled>로그인</button></div>
+        </form>
+        <p class="form-status" data-admin-login-status role="status" hidden></p>
+        <div class="detail-actions admin-mode-actions" data-admin-only hidden>
+          <button type="button" class="button button-outline button-small" data-admin-logout>로그아웃</button>
+          <a class="text-link" href="index.html">메인에서 행사 슬라이드 편집</a>
+          <button type="button" class="button button-outline button-small" data-admin-import hidden>이 브라우저의 기존 작업 가져오기</button>
+        </div>
+        <p class="form-status" data-admin-import-status hidden role="status"></p>
+      </section>
+      <section class="page-section contact-panel post-editor" aria-label="게시글 작성 및 수정" data-admin-only hidden>
+        <p class="form-status" data-editor-missing role="status" hidden>게시글을 찾을 수 없습니다.</p>
+        <script type="application/json" id="post-catalog">[{"id":"budget","kind":"activity","date":"2026-07-11","publishedAt":"2026-07-11","topic":"학생자치","title":"학교의 문제를 찾아 정책으로 제안했어요","shortTitle":"청소년정책예산학교","summary":"학교생활에서 느낀 불편을 함께 살피고, 학생들이 해결 방법과 예산을 논의했습니다.","paragraphs":["7월 11일 청소년정책예산학교에 인천광역시교육청 학생참여위원회 소속 학생들이 모였습니다. 길잡이와 인천광역시교육청이 함께 마련한 자리에서 학생들은 매일 생활하는 학교를 돌아보며 바꾸고 싶은 문제를 찾았습니다.","모둠별로 고른 주제에는 화장실 위생, 화단 관리, 학교폭력 등 학교에서 직접 겪거나 살핀 문제가 담겼습니다. 학생들은 어떤 점을 바꿔야 하는지 이야기하고, 해결 방법과 필요한 예산을 논의했습니다.","학교생활에서 발견한 문제를 자기 말로 설명하고, 다른 의견을 들으며 함께 할 수 있는 일을 제안하는 과정이었습니다. 아래 학생시민기자단 기록에서 당일 활동을 더 읽을 수 있습니다."],"sourceUrl":"https://jci.ice.go.kr/news/na/ntt/selectNttInfo.do?mi=11106&nttSn=3378079","sourceLabel":"인천교육청 학생시민기자단 기록"},{"id":"forum","kind":"activity","date":"2026-05-23","publishedAt":"2026-05-29","topic":"정책 공론장","title":"교육감 후보에게 우리의 질문을 전했어요","shortTitle":"청소년 교육감 공약 포럼","summary":"청소년들이 학교생활에서 느낀 문제로 토론하고, 직접 만든 정책제안서를 전달했습니다.","image":"https://ojsfile.ohmynews.com/STD_IMG_FILE/2026/0529/IE003627671_STD.jpg","alt":"청소년 교육감 공약 포럼 참가자들","paragraphs":["5월 23일 인천에서 열린 청소년 교육감 공약 포럼에서는 청소년들이 인천시교육감 후보들에게 직접 질문했습니다. 질문의 출발점은 학생자치 예산, 교육격차처럼 학교생활에서 청소년들이 만나는 문제였습니다.","참여 청소년들은 원탁에 둘러앉아 관심 있는 의제를 고르고 각자의 경험을 이야기했습니다. 모둠에서 나눈 의견을 정책제안서로 다듬은 뒤, 후보자 질의응답 자리에서 묻고 싶은 내용을 직접 전했습니다.","길잡이는 원탁토론에서 후보자 질의응답으로 이어지는 자리를 열었습니다. 청소년들이 학교에서 겪는 일을 어떤 질문과 제안으로 바꿨는지는 길잡이의 포럼 기록에서 확인할 수 있습니다."],"sourceUrl":"https://www.ohmynews.com/NWS_Web/Series/series_premium_pg.aspx?CNTN_CD=A0003238485","sourceLabel":"길잡이의 포럼 기록"},{"id":"discussion","kind":"activity","date":"2026-10-11","publishedAt":"2026-10-14","topic":"청소년 자치 토론","title":"청소년의 주도성은 어떻게 자라는가","shortTitle":"청소년 자치 토론회","summary":"청소년과 활동가들이 자치의 경험을 나누고, 주도성을 키우는 데 어떤 지원이 필요한지 이야기했습니다.","image":"https://ojsfile.ohmynews.com/STD_IMG_FILE/2026/1014/IE003684363_STD.jpg","alt":"인천도서관에서 열린 청소년 자치 토론회 전경","paragraphs":["10월 11일 인천도서관에서 길잡이는 ‘청소년의 주도성은 어떻게 자라는가’를 주제로 토론회를 열었습니다. 청소년과 청소년 활동 관계자가 모여 학교와 지역에서 자치를 경험한 이야기를 나눴습니다.","발제와 패널 토론에서는 청소년 활동과 학교 자치의 사례를 살폈습니다. 이후 모둠에 모인 참가자들은 청소년 조직에 필요한 지원, 곁에서 돕는 사람의 역할, 학교에서 자치를 지원하는 방법을 놓고 의견을 나눴습니다.","참가자들은 각자의 현장에서 청소년이 더 주도적으로 참여하려면 무엇이 필요한지 제안했습니다. 발제와 토론의 자세한 내용은 길잡이가 정리한 현장 기록에 담겨 있습니다."],"sourceUrl":"https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003275282","sourceLabel":"길잡이의 토론회 기록"},{"id":"book","kind":"activity","date":"2026-10-24","publishedAt":"2026-10-27","topic":"출간 행사","title":"청소년 저자들과 함께한 자치도서 출간기념회","shortTitle":"청소년 자치도서 출간기념회","summary":"출간기념회에서 청소년 저자와 참가자들이 책에 담긴 자치 경험을 나눴습니다.","image":"https://ojsfile.ohmynews.com/STD_IMG_FILE/2026/1027/IE003690198_STD.jpg","alt":"청소년 자치도서 출간기념회 단체사진","paragraphs":["10월 24일 서울 광진구에서 ‘청소년, 자치를 말하다’ 출간기념회를 열었습니다. 학교와 마을, 청소년기관에서 활동해 온 청소년 스무 명이 자신이 겪은 자치의 이야기를 직접 글로 썼습니다.","책에는 회의에서 처음 의견을 냈던 순간, 동료와 생각이 달랐던 일, 생활 속 불편을 정책으로 제안한 경험이 담겼습니다. 활동이 예상과 달리 흘러갔을 때 어떻게 다시 논의했는지도 청소년 저자들의 말로 읽을 수 있습니다.","기념회에서는 저자와 참가자들이 책에 담긴 경험을 나눴습니다. 길잡이가 기록한 출간기념회 기사에서 프로젝트의 배경과 청소년 저자들의 이야기를 더 볼 수 있습니다."],"sourceUrl":"https://m.ohmynews.com/NWS_Web/Mobile/at_pg.aspx?CNTN_CD=A0003279288","sourceLabel":"길잡이의 출간기념회 기록"},{"id":"discussion-recruitment","kind":"recruitment","date":"2026-10-11","publishedAt":"2026-10-07","topic":"참여자 모집","title":"청소년 자치 토론회 참여자 모집","shortTitle":"청소년의 주도성은 어떻게 자라는가?","summary":"청소년과 교사, 활동가가 만나 청소년 자치를 돕는 사람과 학교의 역할을 이야기합니다.","image":"catalog-discussion-20261011.png","alt":"청소년 자치 토론회 포스터. 10월 11일 오후 1시부터 3시 30분까지 인천도서관 3층 세미나실.","paragraphs":["청소년이 스스로 기획하고 행동하는 힘은 어떤 환경에서 자랄까요? 자치 활동에 참여해 온 청소년과 현장 조력자들이 경험을 나누고, 학교와 마을에서 필요한 지원을 함께 이야기하는 자리입니다.","발제와 패널토론에 이어 참가자가 원탁에 모입니다. 청소년 조직의 주도성, 청소년이 바라는 조력자, 자치를 돕는 학교를 주제로 서로의 이야기를 듣습니다.","2026년 10월 11일 일요일 오후 1시부터 3시 30분까지 진행했습니다. 참가비는 무료였으며 30명 안팎을 선착순으로 모집했습니다."],"sourceUrl":"https://linkareer.com/activity/355317","sourceLabel":"당시 모집 공고 보기","recruitment":{"place":"인천도서관 3층 세미나실","audience":"청소년, 청소년 활동가, 교사, 마을공동체 관계자 등","eventTime":"오후 1시~3시 30분","deadline":"2026-10-10","applicationUrl":"https://forms.gle/aEuvKdxdGPNYtLcW7","closed":true}},{"id":"youth-autonomy-volume-1","kind":"publication","date":"2026-10-24","publishedAt":"2026-10-27","topic":"도서","title":"청소년, 자치를 말하다 1권 · 각양각색 청소년 자치","shortTitle":"각양각색 청소년 자치","summary":"학교 안팎에서 생활과 배움의 방향을 스스로 고르고, 마을에서 발견한 문제를 제안으로 바꾼 경험을 모았습니다.","image":"catalog-youth-autonomy-1.png","alt":"푸른색 표지의 청소년, 자치를 말하다 1권 각양각색 청소년 자치","paragraphs":["학교를 벗어나 다른 배움터를 찾은 일, 전시를 준비하면서 동료의 생각을 듣게 된 일, 학교 급식에 관한 의견을 조사해 정책을 제안한 일이 실려 있습니다. 자치를 경험한 청소년들이 각자의 활동을 자기 말로 기록했습니다.","책은 「청소년이라는 빈칸」, 「학교 밖에서 배우다」, 「목소리를 정책으로」의 세 장으로 구성됩니다. 자신의 생활을 꾸려가는 이야기부터 지역의 변화를 제안하는 이야기까지 담았습니다.","자치교육 사회적협동조합 길잡이가 기획하고 아름다운재단 ‘봄·바람’ 사업의 지원으로 제작했습니다."],"sourceUrl":"https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003279288","sourceLabel":"길잡이의 책 소개 읽기","publication":{"accessText":"비매품으로 제작한 책입니다. 본문 열람과 배포에 관한 문의는 길잡이 연락처로 보내 주세요.","previewUrl":"catalog-youth-autonomy-1.png","previewLabel":"표지 크게 보기","dateLabel":"공개 소개일"}},{"id":"youth-autonomy-volume-2","kind":"publication","date":"2026-10-24","publishedAt":"2026-10-27","topic":"도서","title":"청소년, 자치를 말하다 2권 · 세상에 던지는 질문","shortTitle":"세상에 던지는 질문","summary":"처음 회의에서 손을 든 순간부터 위원장이 된 뒤 도움을 구하기까지, 다른 사람과 함께 결정하는 경험을 모았습니다.","image":"catalog-youth-autonomy-2.png","alt":"초록색 표지의 청소년, 자치를 말하다 2권 세상에 던지는 질문","paragraphs":["친구의 권유로 청소년 기관을 찾아가서 직접 행사를 기획한 일, 맡은 역할이 버거워 동료에게 도움을 구한 일, 여러 사람이 함께 쓰는 공간의 규칙을 고민한 일이 실려 있습니다.","책은 「우연히 시작된 자리」, 「벽을 넘는 시간」, 「내 목소리에서 우리의 목소리로」의 세 장으로 구성됩니다. 자신이 낸 의견이 동료들과 논의하는 과정에서 어떻게 달라졌는지도 읽을 수 있습니다.","자치교육 사회적협동조합 길잡이가 기획하고 아름다운재단 ‘봄·바람’ 사업의 지원으로 제작했습니다."],"sourceUrl":"https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003279288","sourceLabel":"길잡이의 책 소개 읽기","publication":{"accessText":"비매품으로 제작한 책입니다. 본문 열람과 배포에 관한 문의는 길잡이 연락처로 보내 주세요.","previewUrl":"catalog-youth-autonomy-2.png","previewLabel":"표지 크게 보기","dateLabel":"공개 소개일"}}]</script>
+        <form class="preview-form" data-post-editor>
+          <label><span>게시판 <small class="field-required" aria-hidden="true">필수</small></span>
+            <select name="kind" required>
+              <option value="activity">활동 기록</option>
+              <option value="recruitment">행사 신청</option>
+              <option value="publication">책과 발간물</option>
+              <option value="notice">공지사항</option>
+            </select>
+          </label>
+          <label><span>제목 <small class="field-required" aria-hidden="true">필수</small></span><input name="title" type="text" maxlength="100" required></label>
+          <div class="form-pair">
+            <label><span>태그 <small class="field-required" aria-hidden="true">필수</small></span><input name="topic" type="text" maxlength="30" required></label>
+            <label><span><span data-editor-date-label>활동 날짜</span> <small class="field-required" aria-hidden="true">필수</small></span><input name="date" type="date" required></label>
+          </div>
+          <label><span>목록에 보일 요약 <small class="field-optional" aria-hidden="true">선택</small></span><input name="summary" type="text" maxlength="140"></label>
+          <div class="form-field"><label for="editor-body"><span>본문 <small class="field-required" aria-hidden="true">필수</small></span></label><textarea id="editor-body" name="body" rows="8" maxlength="6000" required></textarea></div>
+          <div class="form-pair">
+            <div class="form-field">
+              <label><span><span data-editor-image-label>사진</span> <small class="field-optional" aria-hidden="true">선택</small></span><input name="imageFile" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="editor-image-limit"></label>
+              <span class="field-optional" id="editor-image-limit">PNG·JPG·WebP, 원본 최대 20MB</span>
+              <button type="button" class="button button-outline button-small" data-clear-image hidden>선택한 이미지 빼기</button>
+            </div>
+            <label><span>이미지 주소 <small class="field-optional" aria-hidden="true">선택</small></span><input name="image" type="url" maxlength="1000"></label>
+          </div>
+          <label class="post-image-removal" data-editor-existing-image hidden><input name="removeImage" type="checkbox"> 저장된 이미지 삭제</label>
+          <label><span>이미지 설명 <small class="field-optional" aria-hidden="true">선택</small></span><input name="alt" type="text" maxlength="150"></label>
+          <fieldset class="editor-attachments">
+            <legend>첨부파일 <small class="field-optional" aria-hidden="true">선택</small></legend>
+            <div class="form-field">
+              <label><span>문서 파일 선택</span><input name="attachments" type="file" multiple accept=".pdf,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip" aria-describedby="editor-attachments-limit"></label>
+              <span class="field-optional" id="editor-attachments-limit">PDF·한글·Office·TXT·ZIP, 파일당 최대 30MB</span>
+              <button type="button" class="button button-outline button-small" data-clear-attachments hidden>선택한 파일 빼기</button>
+            </div>
+            <div data-editor-attachments></div>
+          </fieldset>
+          <fieldset data-editor-kind="recruitment" hidden disabled>
+            <legend>모집 정보</legend>
+            <label><span>행사 시간 <small class="field-optional" aria-hidden="true">선택</small></span><input name="eventTime" type="text" maxlength="80"></label>
+            <div class="form-pair">
+              <label><span>장소 <small class="field-required" aria-hidden="true">필수</small></span><input name="place" type="text" maxlength="100" required></label>
+              <label><span>대상 <small class="field-required" aria-hidden="true">필수</small></span><input name="audience" type="text" maxlength="120" required></label>
+            </div>
+            <div class="form-pair">
+              <label><span>신청 마감일 <small class="field-required" aria-hidden="true">필수</small></span><input name="deadline" type="date" required></label>
+              <label><span>신청 링크 <small class="field-optional" aria-hidden="true">선택</small></span><input name="applicationUrl" type="url" maxlength="1000" inputmode="url"></label>
+            </div>
+          </fieldset>
+          <fieldset data-editor-kind="publication" hidden disabled>
+            <legend>발간 정보</legend>
+            <div class="form-pair">
+              <label><span>발행처 <small class="field-required" aria-hidden="true">필수</small></span><input name="publisher" type="text" maxlength="100" required value="자치교육사회적협동조합 길잡이"></label>
+              <label><span>열람 안내 <small class="field-optional" aria-hidden="true">선택</small></span><input name="accessText" type="text" maxlength="200"></label>
+            </div>
+            <div class="form-pair">
+              <label><span>열람 파일 주소 <small class="field-optional" aria-hidden="true">선택</small></span><input name="fileUrl" type="url" maxlength="1000"></label>
+              <label><span>미리보기 주소 <small class="field-optional" aria-hidden="true">선택</small></span><input name="previewUrl" type="url" maxlength="1000"></label>
+            </div>
+          </fieldset>
+          <div class="form-actions">
+            <button class="button" type="submit" disabled>저장</button>
+            <a class="button button-outline" data-editor-back href="activity-board.html">게시판으로 돌아가기</a>
+            <button class="button button-outline post-delete" type="button" data-editor-delete hidden>글 삭제</button>
+          </div>
+          <p class="form-status" data-editor-status role="status" tabindex="-1" hidden></p>
+        </form>
+        <dialog data-delete-dialog aria-labelledby="post-delete-title">
+          <div class="detail">
+            <h2 id="post-delete-title">게시글을 삭제할까요?</h2>
+            <form class="form-actions" method="dialog">
+              <button class="button button-outline" value="cancel" autofocus>취소</button>
+              <button class="button button-outline post-delete" value="delete">삭제</button>
+            </form>
+          </div>
+        </dialog>
+      </section>
+    </div>
+  </div></main>
+  <footer class="site-footer">
+    <div class="wrap footer-top">
+      <div><a class="brand" href="index.html" aria-label="자치교육사회적협동조합 길잡이 홈"><img src="logo.png" alt="" width="1031" height="300"></a><p>인천광역시 남동구 · jachicoop@gmail.com</p></div>
+      <nav aria-label="하단 정책 안내"><a href="privacy.html">개인정보처리방침</a><a href="terms.html">이용약관</a><a href="contact.html">문의하기</a></nav>
+    </div>
+    <div class="wrap footer-bottom">
+      <p>© 2026 자치교육사회적협동조합 길잡이</p>
+      <div class="footer-controls">
+        <a href="admin-posts.html" aria-current="page" data-admin-signed-out>관리자 로그인</a>
+        
+        <button type="button" class="admin-entry" data-admin-only data-admin-logout hidden>로그아웃</button>
+        <p class="form-status" data-admin-logout-status role="status" hidden></p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
