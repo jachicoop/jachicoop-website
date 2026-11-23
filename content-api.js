@@ -1,36 +1,24 @@
 'use strict';
 
 (() => {
-  let session = { isAdmin: false, needsSetup: false, available: false };
+  let session = { isAdmin: false, available: false };
   let content = { posts: [], slides: null, slidesRevision: null };
+  const connection = import('./firebase-config.js').then(async ({ default: config }) => {
+    if (!config) throw new Error('Firebase 연결 설정을 기다리고 있습니다.');
+    const { connectFirestore } = await import('./firestore-cms.js');
+    return connectFirestore(config);
+  });
 
-  async function request(path, { method = 'GET', body } = {}) {
-    const isForm = body instanceof FormData;
-    let response;
-    try {
-      response = await fetch(path, {
-        method, credentials: 'same-origin', cache: 'no-store',
-        headers: body && !isForm ? { 'Content-Type': 'application/json' } : undefined,
-        body: body && !isForm ? JSON.stringify(body) : body,
-      });
-    } catch {
-      throw new Error('서버에 연결할 수 없습니다.');
-    }
-    const result = await response.json().catch(() => null);
-    if (!response.ok || !result) {
-      if (response.status === 401 && path !== '/api/session') void reloadSession();
-      const error = new Error(result?.error || '서버에 연결할 수 없습니다.');
-      error.status = response.status;
-      throw error;
-    }
-    return result;
+  async function request(path, options) {
+    const store = await connection;
+    return store.request(path, options);
   }
 
   async function reloadSession() {
     try {
       session = { ...await request('/api/session'), available: true };
-    } catch {
-      session = { isAdmin: false, needsSetup: false, available: false };
+    } catch (error) {
+      session = { isAdmin: false, available: false, message: error.message };
     }
     window.dispatchEvent(new Event('jachicoop-session'));
     window.dispatchEvent(new Event('jachicoop-auth'));
@@ -90,20 +78,17 @@
     const prior = availableImport();
     let successes = 0;
     let failures = 0;
+    let localFiles = 0;
     for (const original of prior.posts) {
       try {
         if (original.deleted) {
           await request('/api/post', { method: 'DELETE', body: { id: original.id, expected: null } });
         } else {
-          const post = { ...original, attachments: original.attachments || [] };
-          const form = new FormData();
-          form.set('payload', JSON.stringify({ post, expected: null }));
-          for (const { id, name } of post.attachments) {
-            const file = await window.jachicoopLegacyAttachment?.(id);
-            if (!(file instanceof Blob)) throw new Error('첨부파일을 찾을 수 없습니다.');
-            form.set(id, file, name);
-          }
-          await request('/api/post', { method: 'POST', body: form });
+          const allAttachments = original.attachments ?? [];
+          const attachments = allAttachments.filter(({ url }) => typeof url === 'string' && url.startsWith('https://'));
+          const post = { ...original, attachments };
+          await request('/api/post', { method: 'POST', body: { post, expected: null } });
+          localFiles += allAttachments.length - attachments.length;
         }
         successes++;
       } catch { failures++; }
@@ -115,7 +100,10 @@
       } catch { failures++; }
     }
     await reload();
-    importStatus.textContent = failures ? `${successes}건을 가져왔습니다. 가져오지 못한 작업이 ${failures}건 있습니다.` : '기존 작업을 가져왔습니다.';
+    const messages = [`${successes}건을 가져왔습니다.`];
+    if (failures) messages.push(`가져오지 못한 작업이 ${failures}건 있습니다.`);
+    if (localFiles) messages.push(`이 브라우저에 보관된 첨부파일 ${localFiles}개는 공개 링크로 다시 연결해 주세요.`);
+    importStatus.textContent = messages.join(' ');
     importButton.disabled = false;
     syncImport();
   });

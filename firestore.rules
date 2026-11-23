@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && get(/databases/$(database)/documents/cmsAdmins/$(request.auth.uid)).data.enabled == true;
+    }
+
+    function validRecord() {
+      return request.resource.data.keys().hasOnly(['revision', 'data'])
+        && request.resource.data.revision is string
+        && request.resource.data.revision.size() == 36
+        && request.resource.data.data is map;
+    }
+
+    function validPost(post, postId) {
+      return post.id == postId && postId.matches('[a-z0-9]+(-[a-z0-9]+)*')
+        && (post.get('deleted', false) == true
+          ? post.keys().hasOnly(['id', 'deleted'])
+          : post.kind in ['activity', 'recruitment', 'publication', 'notice']
+            && post.title is string && post.title.size() > 0 && post.title.size() <= 100
+            && post.topic is string && post.topic.size() > 0 && post.topic.size() <= 30
+            && post.summary is string && post.summary.size() <= 140
+            && post.date is string && post.date.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+            && post.publishedAt is string
+            && post.paragraphs is list && post.paragraphs.size() > 0
+            && post.get('attachments', []) is list);
+    }
+
+    match /cmsAdmins/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /cmsPosts/{postId} {
+      allow get, list: if true;
+      allow create, update: if isAdmin() && validRecord()
+        && validPost(request.resource.data.data, postId);
+    }
+
+    match /cmsSettings/hero {
+      allow get: if true;
+      allow create, update: if isAdmin() && validRecord()
+        && request.resource.data.data.keys().hasOnly(['slides'])
+        && request.resource.data.data.slides is list
+        && request.resource.data.data.slides.size() > 0
+        && request.resource.data.data.slides.size() <= 50;
+    }
+  }
+}

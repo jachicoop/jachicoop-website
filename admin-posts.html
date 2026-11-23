@@ -38,9 +38,8 @@
     </div></section>
     <div class="wrap page-body">
       <section class="page-section admin-access" aria-label="관리자 도구">
-        <form class="preview-form admin-sign-in" method="post" action="/api/session" data-admin-signed-out data-admin-login>
-          <label>아이디<input name="username" value="jachicoop" autocomplete="username" maxlength="64" required></label>
-          <label data-admin-setup hidden>초기 설정 코드<input name="setupCode" type="password" autocomplete="off" maxlength="64"></label>
+        <form class="preview-form admin-sign-in" method="post" data-admin-signed-out data-admin-login>
+          <label>관리자 이메일<input name="email" type="email" autocomplete="username" maxlength="254" required></label>
           <label>비밀번호<input name="password" type="password" autocomplete="current-password" maxlength="256" required></label>
           <div class="form-actions"><button type="submit" class="button" disabled>로그인</button></div>
         </form>
@@ -72,23 +71,15 @@
           <label><span>목록에 보일 요약 <small class="field-optional" aria-hidden="true">선택</small></span><input name="summary" type="text" maxlength="140"></label>
           <div class="form-field"><label for="editor-body"><span>본문 <small class="field-required" aria-hidden="true">필수</small></span></label><textarea id="editor-body" name="body" rows="8" maxlength="6000" required></textarea></div>
           <div class="form-pair">
-            <div class="form-field">
-              <label><span><span data-editor-image-label>사진</span> <small class="field-optional" aria-hidden="true">선택</small></span><input name="imageFile" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="editor-image-limit"></label>
-              <span class="field-optional" id="editor-image-limit">PNG·JPG·WebP, 원본 최대 20MB</span>
-              <button type="button" class="button button-outline button-small" data-clear-image hidden>선택한 이미지 빼기</button>
-            </div>
-            <label><span>이미지 주소 <small class="field-optional" aria-hidden="true">선택</small></span><input name="image" type="url" maxlength="1000"></label>
+            <label><span><span data-editor-image-label>사진</span> 주소 <small class="field-optional" aria-hidden="true">선택</small></span><input name="image" type="url" maxlength="1000" aria-describedby="editor-image-help"></label>
+            <span class="field-optional" id="editor-image-help">웹에서 바로 열리는 이미지의 HTTPS 주소를 넣어 주세요.</span>
           </div>
           <label class="post-image-removal" data-editor-existing-image hidden><input name="removeImage" type="checkbox"> 저장된 이미지 삭제</label>
           <label><span>이미지 설명 <small class="field-optional" aria-hidden="true">선택</small></span><input name="alt" type="text" maxlength="150"></label>
           <fieldset class="editor-attachments">
             <legend>첨부파일 <small class="field-optional" aria-hidden="true">선택</small></legend>
-            <div class="form-field">
-              <label><span>문서 파일 선택</span><input name="attachments" type="file" multiple accept=".pdf,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip" aria-describedby="editor-attachments-limit"></label>
-              <span class="field-optional" id="editor-attachments-limit">PDF·한글·Office·TXT·ZIP, 파일당 최대 30MB</span>
-              <button type="button" class="button button-outline button-small" data-clear-attachments hidden>선택한 파일 빼기</button>
-            </div>
-            <div data-editor-attachments></div>
+            <label><span>첨부파일 주소</span><textarea name="attachmentLinks" rows="3" aria-describedby="editor-attachments-help"></textarea></label>
+            <span class="field-optional" id="editor-attachments-help">공개된 문서의 HTTPS 주소를 한 줄에 하나씩 넣어 주세요.</span>
           </fieldset>
           <fieldset data-editor-kind="recruitment" hidden disabled>
             <legend>모집 정보</legend>

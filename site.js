@@ -2,7 +2,6 @@
 
 const adminServer = window.jachicoopServer;
 const adminLogin = document.querySelector('[data-admin-login]');
-const adminSetup = adminLogin?.querySelector('[data-admin-setup]');
 const loginSubmit = adminLogin?.querySelector('button[type="submit"]');
 const adminLogouts = document.querySelectorAll('[data-admin-logout]');
 const adminStatus = document.querySelector('[data-admin-login-status]');
@@ -16,12 +15,6 @@ function syncAdminControls() {
   const active = isAdminMode();
   for (const control of document.querySelectorAll('[data-admin-only]')) control.hidden = !active;
   for (const view of document.querySelectorAll('[data-admin-signed-out]')) view.hidden = active;
-  if (adminSetup) {
-    const needsSetup = adminServer?.session.needsSetup === true;
-    adminSetup.hidden = !needsSetup;
-    adminLogin.elements.setupCode.disabled = !needsSetup;
-    adminLogin.elements.setupCode.required = needsSetup;
-  }
   if (loginSubmit) loginSubmit.disabled = authPending || !adminServer?.session.available;
   for (const button of adminLogouts) button.disabled = authPending;
 }
@@ -56,11 +49,10 @@ async function changeAdminSession(method, body, status) {
 adminLogin?.addEventListener('submit', (event) => {
   event.preventDefault();
   if (authPending || isAdminMode() || !adminServer?.session.available) return;
-  const { username, password, setupCode } = adminLogin.elements;
+  const { email, password } = adminLogin.elements;
   void changeAdminSession('POST', {
-    username: username.value.trim(),
+    email: email.value.trim(),
     password: password.value,
-    setupCode: adminServer.session.needsSetup ? setupCode.value.trim() : '',
   });
 });
 for (const button of adminLogouts) {
@@ -75,7 +67,9 @@ syncAdminControls();
 window.addEventListener('jachicoop-session', syncAdminControls);
 Promise.resolve(adminServer?.ready).then(() => {
   syncAdminControls();
-  if (adminLogin && !adminServer?.session.available) showAdminStatus('관리자 로그인 서버에 연결할 수 없습니다.');
+  if (adminLogin && !adminServer?.session.available) {
+    showAdminStatus(adminServer?.session.message || '관리자 로그인 서비스에 연결할 수 없습니다.');
+  }
 }).catch(() => {
   syncAdminControls();
   showAdminStatus('관리자 로그인 서버에 연결할 수 없습니다.');
@@ -205,8 +199,7 @@ function setupCarousel(section) {
   const status = section.querySelector('#slide-status');
   const dots = section.querySelector('.slide-dots');
   const editorTrigger = document.querySelector('[data-open-editor]');
-  const imagePicker = form.elements.imageFile;
-  const clearFile = form.querySelector('[data-clear-slide-file]');
+  const imageUrl = form.elements.imageUrl;
   const removeImage = form.querySelector('[data-existing-slide-image]');
   const submitButton = form.querySelector('[type="submit"]');
   const resetButton = editor.querySelector('[data-reset-slides]');
@@ -343,9 +336,7 @@ function setupCarousel(section) {
 
   function syncImageControls() {
     const currentEdit = slides[Number(form.elements.slide.value)];
-    const hasNewFile = Boolean(imagePicker.files?.length);
-    clearFile.hidden = !hasNewFile;
-    removeImage.hidden = hasNewFile || !currentEdit?.imageOverride;
+    removeImage.hidden = Boolean(imageUrl.value.trim()) || !currentEdit?.imageOverride;
     if (removeImage.hidden) form.elements.removeImage.checked = false;
   }
 
@@ -359,7 +350,7 @@ function setupCarousel(section) {
     const selected = index === 'new' ? null : slides[index];
     slideFields.forEach((name) => { form.elements[name].value = selected?.[name] ?? ''; });
     if (!knownPosts.has(form.elements.post.value)) form.elements.post.value = '';
-    imagePicker.value = '';
+    imageUrl.value = '';
     form.elements.removeImage.checked = false;
     syncImageControls();
     editorStatus.textContent = '';
@@ -390,14 +381,8 @@ function setupCarousel(section) {
     const chosen = form.elements.slide.value;
     populate(chosen === 'new' ? 'new' : Number(chosen));
   });
-  imagePicker.addEventListener('change', syncImageControls);
+  imageUrl.addEventListener('input', syncImageControls);
   form.addEventListener('input', () => { formVersion++; });
-  clearFile.addEventListener('click', () => {
-    formVersion++;
-    imagePicker.value = '';
-    syncImageControls();
-    imagePicker.focus();
-  });
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!isAdminMode() || !editor.open || submitButton.disabled) return;
@@ -411,12 +396,16 @@ function setupCarousel(section) {
     const selected = adding ? slides.length : Number(form.elements.slide.value);
     const version = formVersion;
     const stillEditing = () => isAdminMode() && editor.open && version === formVersion;
-    const file = imagePicker.files?.[0];
-    let imageOverride = form.elements.removeImage.checked ? '' : (slides[selected]?.imageOverride ?? '');
+    const address = imageUrl.value.trim();
+    const replacement = slideHttpsUrl(address);
+    if (address && !replacement) {
+      editorStatus.textContent = '이미지의 HTTPS 주소를 확인해 주세요.';
+      return;
+    }
+    const imageOverride = replacement || (form.elements.removeImage.checked ? '' : (slides[selected]?.imageOverride ?? ''));
     submitButton.disabled = true;
     resetButton.disabled = true;
     try {
-      if (file) imageOverride = await window.jachicoopPrepareImage(file);
       if (!stillEditing()) return;
       if (slide.post && !knownPosts.has(slide.post)) throw new Error('연결할 게시글을 다시 선택해 주세요.');
       const updated = [...slides];

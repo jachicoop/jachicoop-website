@@ -2,13 +2,7 @@
 
 (() => {
   const storagePrefix = 'jachicoop-preview-post:';
-  const imageTypes = ['image/png', 'image/jpeg', 'image/webp'];
-  const uploadLimitMiB = 20;
-  const storedImageLimit = 480 * 1024;
-  const attachmentLimit = 30 * 1024 * 1024;
-  const attachmentTypes = /\.(pdf|hwp|hwpx|doc|docx|xls|xlsx|ppt|pptx|txt|zip)$/i;
   const postIdFormat = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-  const attachmentStore = 'files';
   const boards = {
     activity: { title: '활동 기록', href: 'activity-board.html', date: '활동 날짜', image: '활동 사진' },
     recruitment: { title: '행사 신청', href: 'participation-guide.html', date: '행사 날짜', image: '모집 포스터' },
@@ -19,7 +13,6 @@
   const isLocalId = (id) => id.startsWith('local-');
   const isAdmin = () => Boolean(server?.isAdmin);
   const params = new URLSearchParams(location.search);
-  let attachmentDatabase;
 
   function todayInKorea() {
     const parts = new Intl.DateTimeFormat('en-GB', {
@@ -100,36 +93,11 @@
   }
 
   function attachmentsFor(post) {
-    return Array.isArray(post?.attachments) ? post.attachments.filter((item) => item
-      && typeof item.id === 'string' && /^file-\d+-\d+-\d+$/.test(item.id)
-      && typeof item.name === 'string' && attachmentTypes.test(item.name)) : [];
+    if (!Array.isArray(post?.attachments)) return [];
+    return post.attachments
+      .filter((item) => typeof item?.name === 'string' && httpsUrl(item.url))
+      .map(({ name, url }) => ({ name, url: httpsUrl(url) }));
   }
-
-  function openAttachments() {
-    if (!attachmentDatabase) {
-      attachmentDatabase = new Promise((resolve, reject) => {
-        const request = indexedDB.open('jachicoop-preview-attachments', 1);
-        request.onupgradeneeded = () => request.result.createObjectStore(attachmentStore);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-        request.onblocked = () => reject(new Error('첨부파일 보관함을 열 수 없습니다.'));
-      }).catch((error) => {
-        attachmentDatabase = undefined;
-        throw error;
-      });
-    }
-    return attachmentDatabase;
-  }
-
-  async function loadLegacyAttachment(id) {
-    const database = await openAttachments();
-    return new Promise((resolve, reject) => {
-      const request = database.transaction(attachmentStore).objectStore(attachmentStore).get(id);
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  }
-  window.jachicoopLegacyAttachment = loadLegacyAttachment;
 
   function recruitmentClosed(post) {
     return Boolean(post.recruitment?.closed || (post.recruitment?.deadline && post.recruitment.deadline < todayInKorea()));
@@ -252,12 +220,9 @@
     if (!attachments.length) return;
     const section = el('section', 'post-attachments');
     const items = el('ul');
-    for (const { id, name } of attachments) {
+    for (const { url, name } of attachments) {
       const item = el('li');
-      const link = el('a', 'button button-outline button-small', `${name} 내려받기`);
-      link.href = `/api/file/${encodeURIComponent(id)}`;
-      link.download = name;
-      item.append(link);
+      appendLink(item, url, `${name} 열기`, 'button button-outline button-small');
       items.append(item);
     }
     section.append(el('h2', '', '첨부파일'), items);
@@ -344,70 +309,12 @@
     if (actions.children.length) body.append(actions);
   }
 
-  async function prepareUpload(file) {
-    if (!imageTypes.includes(file.type)) throw new Error('PNG, JPG 또는 WebP 이미지를 선택해 주세요.');
-    if (!file.size) throw new Error('파일이 비어 있습니다. 다른 이미지를 선택해 주세요.');
-    if (file.size > uploadLimitMiB * 1024 * 1024) throw new Error(`이미지 원본은 최대 ${uploadLimitMiB}MB까지 올릴 수 있습니다.`);
-
-    const url = URL.createObjectURL(file);
-    try {
-      const image = new Image();
-      image.src = url;
-      await image.decode().catch(() => { throw new Error('이미지를 열 수 없습니다. 파일이 정상적으로 열리는지 확인해 주세요.'); });
-      if (file.size <= storedImageLimit) return file;
-
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      if (!context) throw new Error('브라우저에서 이미지 크기를 조정할 수 없습니다.');
-      // Keep alpha in PNG and WebP. Browsers without WebP encoding fall back to PNG.
-      const mimeType = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/webp';
-      let scale = Math.min(1, 2048 / Math.max(image.naturalWidth, image.naturalHeight));
-      for (let attempt = 0; attempt < 6; attempt++) {
-        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
-        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        const encoded = await new Promise((resolve) => canvas.toBlob(resolve, mimeType, .86));
-        if (encoded?.size && encoded.size <= storedImageLimit) return encoded;
-        scale *= .78;
-      }
-      throw new Error('게시용 크기로 이미지를 줄이지 못했습니다. 다른 이미지를 선택해 주세요.');
-    } finally {
-      URL.revokeObjectURL(url);
-    }
-  }
-
-  async function readUploadedImage(file) {
-    const blob = await prepareUpload(file);
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.addEventListener('load', () => {
-        const source = safeImage(reader.result);
-        if (source) resolve(source);
-        else reject(new Error('이미지를 게시용 형식으로 저장할 수 없습니다.'));
-      });
-      reader.addEventListener('error', () => reject(new Error('이미지 파일을 읽지 못했습니다.')));
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  window.jachicoopPrepareImage = readUploadedImage;
-
-  async function readImage(file, address) {
-    if (file?.name) return readUploadedImage(file);
-    const url = httpsUrl(address);
-    if (address && !url) throw new Error('이미지 주소는 https:// 주소를 넣어 주세요.');
-    return url;
-  }
-
   function setupEditor(form) {
     const field = form.elements;
     const status = form.querySelector('[data-editor-status]');
     const submit = form.querySelector('button[type="submit"]');
     const deleteButton = form.querySelector('[data-editor-delete]');
     const deleteDialog = form.parentElement.querySelector('[data-delete-dialog]');
-    const clearImage = form.querySelector('[data-clear-image]');
-    const clearFiles = form.querySelector('[data-clear-attachments]');
-    const storedFiles = form.querySelector('[data-editor-attachments]');
     const requested = params.get('board');
     const editId = params.get('edit');
     const catalog = JSON.parse(document.querySelector('#post-catalog').textContent);
@@ -429,6 +336,7 @@
       for (const key of ['title', 'topic', 'date', 'summary', 'alt']) field[key].value = original[key] || '';
       field.body.value = original.paragraphs.join('\n\n');
       field.image.value = httpsUrl(original.image);
+      field.attachmentLinks.value = attachmentsFor(original).map(({ url }) => url).join('\n');
       form.querySelector('[data-editor-existing-image]').hidden = !original.image;
       if (original.recruitment) {
         for (const key of ['place', 'audience', 'deadline', 'eventTime', 'applicationUrl']) {
@@ -458,25 +366,6 @@
       form.querySelector('[data-editor-existing-image]').hidden = !original?.image;
     }
 
-    function refreshPickers() {
-      clearImage.hidden = !field.imageFile.files.length;
-      clearFiles.hidden = !field.attachments.files.length;
-    }
-
-    function drawStoredFiles() {
-      const controls = attachmentsFor(original).map(({ id, name }) => {
-        const label = el('label', 'post-image-removal');
-        const input = el('input');
-        input.type = 'checkbox';
-        input.name = 'removeAttachment';
-        input.value = id;
-        label.append(input, `${name} 삭제`);
-        return label;
-      });
-      storedFiles.hidden = !controls.length;
-      storedFiles.replaceChildren(...controls);
-    }
-
     function showStatus(message) {
       status.textContent = message;
       status.hidden = false;
@@ -484,24 +373,10 @@
     }
 
     field.kind.addEventListener('change', updateFields);
-    field.imageFile.addEventListener('change', () => {
-      if (field.imageFile.files.length) field.removeImage.checked = false;
-      refreshPickers();
-    });
-    field.attachments.addEventListener('change', refreshPickers);
-    clearImage.addEventListener('click', () => {
-      field.imageFile.value = '';
-      field.imageFile.focus();
-      refreshPickers();
-    });
-    clearFiles.addEventListener('click', () => {
-      field.attachments.value = '';
-      field.attachments.focus();
-      refreshPickers();
+    field.image.addEventListener('input', () => {
+      if (field.image.value.trim()) field.removeImage.checked = false;
     });
     updateFields();
-    drawStoredFiles();
-    refreshPickers();
     submit.disabled = false;
     if (original) deleteButton.hidden = false;
     deleteButton.addEventListener('click', () => {
@@ -547,12 +422,9 @@
         const first = paragraphs[0].replace(/\s+/g, ' ');
         const summary = text('summary') || (first.length > 135 ? `${first.slice(0, 134)}…` : first);
         const id = original?.id || newId('local');
-        const file = values.get('imageFile');
-        const address = text('image');
+        const address = checkedLink('image', '이미지 주소');
         const removeImage = values.has('removeImage');
-        const image = file?.name || (address && !removeImage)
-          ? await readImage(file, address)
-          : (removeImage ? '' : safeImage(original?.image));
+        const image = removeImage ? '' : address || safeImage(original?.image);
         const post = {
           ...original,
           id, kind, title, shortTitle: title, date: text('date'), publishedAt: original?.publishedAt || new Date().toISOString(), topic,
@@ -577,19 +449,16 @@
           if (!post.publication.publisher) throw new Error('발행처를 확인해 주세요.');
         }
 
-        const removeIds = new Set(values.getAll('removeAttachment'));
-        const existingFiles = attachmentsFor(original);
-        const added = values.getAll('attachments').filter((file) => file.name).map((file) => {
-          if (!attachmentTypes.test(file.name)) throw new Error('PDF, 한글, Office, TXT, ZIP 중에서 첨부파일을 선택해 주세요.');
-          if (!file.size || file.size > attachmentLimit) throw new Error('내용이 있는 30MB 이하의 파일을 첨부해 주세요.');
-          return { info: { id: newId('file'), name: file.name }, file };
+        const existingNames = new Map(attachmentsFor(original).map(({ url, name }) => [url, name]));
+        const links = text('attachmentLinks').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+        const urls = links.map((link) => {
+          const url = httpsUrl(link);
+          if (!url) throw new Error('첨부파일 주소는 한 줄에 하나씩 HTTPS 주소로 넣어 주세요.');
+          return url;
         });
-        post.attachments = [...existingFiles.filter(({ id }) => !removeIds.has(id)), ...added.map(({ info }) => info)];
+        post.attachments = [...new Set(urls)].map((url, index) => ({ url, name: existingNames.get(url) ?? `첨부파일 ${index + 1}` }));
         if (!isAdmin()) return;
-        const body = new FormData();
-        body.set('payload', JSON.stringify({ post, expected }));
-        for (const { info, file } of added) body.set(info.id, file);
-        await server.request('/api/post', { method: 'POST', body });
+        await server.request('/api/post', { method: 'POST', body: { post, expected } });
         location.assign(detailHref(id));
       } catch (error) {
         showStatus(error.message);
