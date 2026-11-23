@@ -161,6 +161,7 @@ h3 { font-size: 21px; line-height: 1.4; letter-spacing: -.055em; }
 .footer-top a[href="privacy.html"] { font-weight: 800; }
 .site-footer p, .site-footer nav, .footer-bottom { color: var(--muted); font-size: 13px; }
 .footer-top p { margin-top: 11px; }
+.footer-business { display: flex; flex-wrap: wrap; gap: 4px 14px; }
 .site-footer a:hover { color: var(--accent-text); text-decoration: underline; }
 .footer-bottom { padding-bottom: clamp(25px, 4vw, 50px); }
 .footer-controls { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 15px; }
