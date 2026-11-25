@@ -307,7 +307,7 @@ function setupCarousel(section) {
     countdown?.cancel();
     countdown = null;
     if (slides.length > 1) {
-      countdown = progress.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 10000 });
+      countdown = progress.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 5000 });
       countdown.onfinish = () => render(current + 1, false);
     }
     syncPlayback();
