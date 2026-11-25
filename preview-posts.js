@@ -55,6 +55,94 @@
     return node;
   }
 
+  const bodyTags = new Map([['P', 'p'], ['DIV', 'div'], ['BR', 'br'], ['B', 'strong'], ['STRONG', 'strong'], ['U', 'u']]);
+  const bodyFonts = new Set(['sans-serif', 'serif', 'monospace']);
+
+  function formattedBody(markup) {
+    const source = el('template');
+    source.innerHTML = markup;
+    const result = document.createDocumentFragment();
+
+    function copy(parent, nodes) {
+      for (const node of nodes) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          parent.append(node.textContent);
+          continue;
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE || node.namespaceURI !== 'http://www.w3.org/1999/xhtml') continue;
+        const tag = bodyTags.get(node.tagName);
+        const font = [node.dataset.font, node.getAttribute('face'), node.style.fontFamily]
+          .find((value) => bodyFonts.has(value));
+        if (!tag && !font) {
+          if (!['SCRIPT', 'STYLE', 'TEMPLATE', 'IFRAME', 'OBJECT'].includes(node.tagName)) copy(parent, node.childNodes);
+          continue;
+        }
+        const safe = el(tag || 'span');
+        if (font) safe.dataset.font = font;
+        copy(safe, node.childNodes);
+        parent.append(safe);
+      }
+    }
+
+    copy(result, source.content.childNodes);
+    return result;
+  }
+
+  function setupBodyEditor(form, original) {
+    const editor = form.querySelector('#editor-body');
+    const buttons = [...form.querySelectorAll('[data-format]')];
+    const font = form.querySelector('[data-editor-font]');
+    let range;
+    const saved = typeof original?.bodyHtml === 'string' && formattedBody(original.bodyHtml);
+    if (saved?.textContent?.trim()) editor.append(saved);
+    else for (const paragraph of original?.paragraphs ?? []) editor.append(el('p', '', paragraph));
+
+    function rememberSelection() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      const selected = selection.getRangeAt(0);
+      if (!editor.contains(selected.commonAncestorContainer)) return;
+      range = selected.cloneRange();
+      for (const button of buttons) button.setAttribute('aria-pressed', String(document.queryCommandState(button.dataset.format)));
+    }
+
+    function format(command, value) {
+      editor.focus();
+      if (range && editor.contains(range.commonAncestorContainer)) {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+      document.execCommand('styleWithCSS', false, false);
+      document.execCommand(command, false, value);
+      rememberSelection();
+    }
+
+    document.addEventListener('selectionchange', rememberSelection);
+    for (const button of buttons) {
+      button.addEventListener('mousedown', (event) => event.preventDefault());
+      button.addEventListener('click', () => format(button.dataset.format));
+    }
+    font.addEventListener('change', () => {
+      if (bodyFonts.has(font.value)) format('fontName', font.value);
+      font.selectedIndex = 0;
+    });
+    editor.addEventListener('paste', (event) => {
+      event.preventDefault();
+      document.execCommand('insertText', false, event.clipboardData?.getData('text/plain') ?? '');
+    });
+    editor.addEventListener('drop', (event) => event.preventDefault());
+
+    return () => {
+      const text = editor.innerText.trim();
+      const paragraphs = text.split(/\n+/).map((paragraph) => paragraph.trim()).filter(Boolean);
+      const clean = el('div');
+      clean.append(formattedBody(editor.innerHTML));
+      if (text.length > 6000 || clean.innerHTML.length > 100000) throw new Error('본문은 최대 6,000자까지 쓸 수 있습니다.');
+      return { paragraphs, bodyHtml: clean.innerHTML };
+    };
+  }
+
   function readLegacyPosts() {
     const posts = [];
     try {
@@ -303,7 +391,14 @@
         if (download) download.download = '';
       }
     }
-    for (const paragraph of post.paragraphs) body.append(el('p', '', paragraph));
+    const rich = typeof post.bodyHtml === 'string' && formattedBody(post.bodyHtml);
+    if (rich?.textContent?.trim()) {
+      const container = el('div', 'rich-body');
+      container.append(rich);
+      body.append(container);
+    } else {
+      for (const paragraph of post.paragraphs) body.append(el('p', '', paragraph));
+    }
     drawAttachments(body, attachmentsFor(post));
     appendLink(actions, post.sourceUrl, post.sourceLabel || '관련 자료 보기');
     if (actions.children.length) body.append(actions);
@@ -326,6 +421,12 @@
       document.querySelector('[data-editor-missing]').hidden = false;
       return;
     }
+    const readBody = setupBodyEditor(form, original);
+    const existingImage = form.querySelector('[data-editor-existing-image]');
+    const imageAttachment = window.jachicoopImages.setup(form.querySelector('[data-image-attachment]'), server, () => {
+      if (imageAttachment.selected) field.removeImage.checked = false;
+      existingImage.hidden = imageAttachment.selected || !original?.image;
+    });
     if (Object.hasOwn(boards, requested)) field.kind.value = requested;
     field.date.value = todayInKorea();
     if (original) {
@@ -334,10 +435,7 @@
       field.kind.value = original.kind;
       field.kind.disabled = true;
       for (const key of ['title', 'topic', 'date', 'summary', 'alt']) field[key].value = original[key] || '';
-      field.body.value = original.paragraphs.join('\n\n');
-      field.image.value = httpsUrl(original.image);
       field.attachmentLinks.value = attachmentsFor(original).map(({ url }) => url).join('\n');
-      form.querySelector('[data-editor-existing-image]').hidden = !original.image;
       if (original.recruitment) {
         for (const key of ['place', 'audience', 'deadline', 'eventTime', 'applicationUrl']) {
           field[key].value = original.recruitment[key] || '';
@@ -363,7 +461,6 @@
       form.querySelector('[data-editor-date-label]').textContent = board.date;
       form.querySelector('[data-editor-image-label]').textContent = board.image;
       form.querySelector('[data-editor-back]').href = original ? detailHref(original.id) : board.href;
-      form.querySelector('[data-editor-existing-image]').hidden = !original?.image;
     }
 
     function showStatus(message) {
@@ -373,9 +470,7 @@
     }
 
     field.kind.addEventListener('change', updateFields);
-    field.image.addEventListener('input', () => {
-      if (field.image.value.trim()) field.removeImage.checked = false;
-    });
+    existingImage.hidden = !original?.image;
     updateFields();
     submit.disabled = false;
     if (original) deleteButton.hidden = false;
@@ -411,24 +506,24 @@
         return valid || (existing && !httpsUrl(existing) ? existing : '');
       };
       submit.disabled = true;
+      form.inert = true;
+      status.hidden = true;
       try {
         const kind = original?.kind || text('kind');
         const title = text('title');
         const topic = text('topic');
-        const paragraphs = text('body').split(/\n+/).map((paragraph) => paragraph.trim()).filter(Boolean);
+        const { paragraphs, bodyHtml } = readBody();
         if (!Object.hasOwn(boards, kind) || !title || !topic || !paragraphs.length) {
           throw new Error('게시판, 제목, 태그, 본문을 확인해 주세요.');
         }
         const first = paragraphs[0].replace(/\s+/g, ' ');
         const summary = text('summary') || (first.length > 135 ? `${first.slice(0, 134)}…` : first);
         const id = original?.id || newId('local');
-        const address = checkedLink('image', '이미지 주소');
         const removeImage = values.has('removeImage');
-        const image = removeImage ? '' : address || safeImage(original?.image);
         const post = {
           ...original,
           id, kind, title, shortTitle: title, date: text('date'), publishedAt: original?.publishedAt || new Date().toISOString(), topic,
-          summary, paragraphs, image,
+          summary, paragraphs, bodyHtml,
           alt: text('alt') || `${title} ${boards[kind].image}`,
         };
         if (kind === 'recruitment') {
@@ -458,11 +553,15 @@
         });
         post.attachments = [...new Set(urls)].map((url, index) => ({ url, name: existingNames.get(url) ?? `첨부파일 ${index + 1}` }));
         if (!isAdmin()) return;
+        post.image = await imageAttachment.save() || (removeImage ? '' : safeImage(original?.image));
+        if (!isAdmin()) return;
         await server.request('/api/post', { method: 'POST', body: { post, expected } });
         location.assign(detailHref(id));
       } catch (error) {
+        form.inert = false;
         showStatus(error.message);
       } finally {
+        form.inert = false;
         submit.disabled = false;
       }
     });

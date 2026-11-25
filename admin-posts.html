@@ -11,6 +11,7 @@
   
   <script src="navigation.js" defer></script>
   <script src="content-api.js" defer></script>
+  <script src="image-attachment.js" defer></script>
   <script src="preview-posts.js" defer></script>
   <script src="site.js" defer></script>
 </head>
@@ -69,12 +70,30 @@
             <label><span><span data-editor-date-label>활동 날짜</span> <small class="field-required" aria-hidden="true">필수</small></span><input name="date" type="date" required></label>
           </div>
           <label><span>목록에 보일 요약 <small class="field-optional" aria-hidden="true">선택</small></span><input name="summary" type="text" maxlength="140"></label>
-          <div class="form-field"><label for="editor-body"><span>본문 <small class="field-required" aria-hidden="true">필수</small></span></label><textarea id="editor-body" name="body" rows="8" maxlength="6000" required></textarea></div>
-          <div class="form-pair">
-            <label><span><span data-editor-image-label>사진</span> 주소 <small class="field-optional" aria-hidden="true">선택</small></span><input name="image" type="url" maxlength="1000" aria-describedby="editor-image-help"></label>
-            <span class="field-optional" id="editor-image-help">웹에서 바로 열리는 이미지의 HTTPS 주소를 넣어 주세요.</span>
+          <div class="form-field">
+            <p id="editor-body-label">본문 <small class="field-required" aria-hidden="true">필수</small></p>
+            <div class="format-controls" role="group" aria-label="본문 서식">
+              <button type="button" data-format="bold" aria-pressed="false"><strong>굵게</strong></button>
+              <button type="button" data-format="underline" aria-pressed="false"><u>밑줄</u></button>
+              <label for="editor-font">글꼴</label>
+              <select id="editor-font" data-editor-font>
+                <option value="" selected disabled>선택</option>
+                <option value="sans-serif">고딕체</option>
+                <option value="serif">명조체</option>
+                <option value="monospace">고정폭</option>
+              </select>
+            </div>
+            <div id="editor-body" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-required="true" aria-labelledby="editor-body-label" aria-describedby="editor-body-help"></div>
+            <p class="field-optional" id="editor-body-help">본문은 최대 6,000자까지 쓸 수 있습니다.</p>
           </div>
-          <label class="post-image-removal" data-editor-existing-image hidden><input name="removeImage" type="checkbox"> 저장된 이미지 삭제</label>
+          <div class="image-attachment" data-image-attachment>
+            <label><span><span data-editor-image-label>사진</span> 첨부 <small class="field-optional" aria-hidden="true">선택</small></span><input type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" aria-describedby="editor-image-help"></label>
+            <p class="field-optional" id="editor-image-help">JPG, PNG, WebP를 올릴 수 있습니다. 5MB를 넘는 사진은 자동으로 줄어들며, 해상도나 화질이 낮아질 수 있습니다.</p>
+            <img alt="첨부할 게시글 사진" hidden>
+            <button class="button button-outline button-small" type="button" data-clear-photo hidden>사진 선택 취소</button>
+            <p class="field-optional" role="status" data-photo-status></p>
+          </div>
+          <label class="post-image-removal" data-editor-existing-image hidden><input name="removeImage" type="checkbox"> 게시글에서 현재 사진 빼기</label>
           <label><span>이미지 설명 <small class="field-optional" aria-hidden="true">선택</small></span><input name="alt" type="text" maxlength="150"></label>
           <fieldset class="editor-attachments">
             <legend>첨부파일 <small class="field-optional" aria-hidden="true">선택</small></legend>

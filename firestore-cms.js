@@ -95,6 +95,21 @@ export async function connectFirestore(config, sdk) {
         return { isAdmin: false };
       }
       if (path === '/api/content' && method === 'GET') return await readContent();
+      if (path === '/api/imagekit-upload' && method === 'POST') {
+        if (!auth.currentUser) throw cmsError('관리자 로그인이 필요합니다.', 401);
+        const token = await auth.currentUser.getIdToken();
+        const response = await fetch(path, {
+          method,
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: AbortSignal.timeout(15000),
+        });
+        const result = await response.json().catch(() => null);
+        if (!response.ok || !result?.token || !result.fields) {
+          throw cmsError(result?.message || '사진 업로드 기능에 연결할 수 없습니다.', response.ok ? 503 : response.status);
+        }
+        return result;
+      }
       if (path === '/api/post' && method === 'POST') {
         const { _revision, ...post } = body.post;
         return await save(reference('cmsPosts', post.id), post, body.expected);

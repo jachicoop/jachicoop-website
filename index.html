@@ -11,6 +11,7 @@
   
   <script src="navigation.js" defer></script>
   <script src="content-api.js" defer></script>
+  <script src="image-attachment.js" defer></script>
   <script src="preview-posts.js" defer></script>
   <script src="site.js" defer></script>
 </head>
@@ -57,6 +58,10 @@
             </figcaption>
           </figure>
           <div class="slide-dots" aria-label="행사 선택"><button type="button" data-slide="0" aria-label="청소년의 주도성은 어떻게 자라는가 보기" aria-current="true"><span></span></button><button type="button" data-slide="1" aria-label="청소년 교육감 공약 포럼 보기"><span></span></button><button type="button" data-slide="2" aria-label="청소년 자치도서 출간기념회 보기"><span></span></button></div>
+          <div class="slide-timing" hidden>
+            <div class="slide-progress" aria-hidden="true"><span></span></div>
+            <button class="slide-playback" type="button">자동 재생 일시정지</button>
+          </div>
           <p class="sr-only" id="slide-status" aria-live="polite"></p>
         </section>
       </div>
@@ -182,6 +187,7 @@
         <button type="button" class="close-case" data-close-editor aria-label="편집 닫기">×</button>
         <h2 id="editor-title">홈 행사 슬라이드 편집</h2>
         <form id="edit-slides" class="preview-form">
+          <fieldset class="slide-editor-fields" data-slide-fields aria-label="슬라이드 편집 항목">
           <label>편집할 슬라이드<select name="slide"></select></label>
           <div class="form-actions"><button type="button" class="button button-outline button-small" data-new-slide>새 슬라이드 추가</button></div>
           <label><span>행사 이름 <small class="field-required">필수</small></span><input name="title" required maxlength="64"></label>
@@ -191,15 +197,26 @@
           </div>
           <label><span>연결할 게시글 <small class="field-optional">선택</small></span><select name="post"><option value="">연결 안 함</option><option value="post-budget.html" data-post-id="budget" data-article-url="https://jci.ice.go.kr/news/na/ntt/selectNttInfo.do?mi=11106&amp;nttSn=3378079" data-post-image="" data-post-alt="">학교의 문제를 찾아 정책으로 제안했어요</option><option value="post-forum.html" data-post-id="forum" data-article-url="https://www.ohmynews.com/NWS_Web/Series/series_premium_pg.aspx?CNTN_CD=A0003238485" data-post-image="https://ojsfile.ohmynews.com/STD_IMG_FILE/2026/0529/IE003627671_STD.jpg" data-post-alt="청소년 교육감 공약 포럼 참가자들">교육감 후보에게 우리의 질문을 전했어요</option><option value="post-discussion.html" data-post-id="discussion" data-article-url="https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003275282" data-post-image="https://ojsfile.ohmynews.com/STD_IMG_FILE/2026/1014/IE003684363_STD.jpg" data-post-alt="인천도서관에서 열린 청소년 자치 토론회 전경">청소년의 주도성은 어떻게 자라는가</option><option value="post-book.html" data-post-id="book" data-article-url="https://m.ohmynews.com/NWS_Web/Mobile/at_pg.aspx?CNTN_CD=A0003279288" data-post-image="https://ojsfile.ohmynews.com/STD_IMG_FILE/2026/1027/IE003690198_STD.jpg" data-post-alt="청소년 자치도서 출간기념회 단체사진">청소년 저자들과 함께한 자치도서 출간기념회</option><option value="post-discussion-recruitment.html" data-post-id="discussion-recruitment" data-article-url="https://linkareer.com/activity/355317" data-post-image="catalog-discussion-20261011.png" data-post-alt="청소년 자치 토론회 포스터. 10월 11일 오후 1시부터 3시 30분까지 인천도서관 3층 세미나실.">청소년 자치 토론회 참여자 모집</option><option value="post-youth-autonomy-volume-1.html" data-post-id="youth-autonomy-volume-1" data-article-url="https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003279288" data-post-image="catalog-youth-autonomy-1.png" data-post-alt="푸른색 표지의 청소년, 자치를 말하다 1권 각양각색 청소년 자치">청소년, 자치를 말하다 1권 · 각양각색 청소년 자치</option><option value="post-youth-autonomy-volume-2.html" data-post-id="youth-autonomy-volume-2" data-article-url="https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003279288" data-post-image="catalog-youth-autonomy-2.png" data-post-alt="초록색 표지의 청소년, 자치를 말하다 2권 세상에 던지는 질문">청소년, 자치를 말하다 2권 · 세상에 던지는 질문</option></select></label>
           <div class="slide-image-field">
-            <label><span>슬라이드 이미지 주소 <small class="field-optional">선택</small></span><input type="url" name="imageUrl" maxlength="1200" aria-describedby="slide-image-help"></label>
-            <p class="field-optional" id="slide-image-help">웹에서 바로 열리는 이미지의 HTTPS 주소를 넣어 주세요. 별도 이미지가 없으면 연결한 게시글의 대표 이미지를 사용합니다.</p>
+            <div class="image-attachment" data-image-attachment>
+              <label><span>슬라이드 사진 첨부 <small class="field-optional">선택</small></span><input type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" aria-describedby="slide-image-help"></label>
+              <p class="field-optional" id="slide-image-help">JPG, PNG, WebP를 올릴 수 있습니다. 5MB를 넘는 사진은 자동으로 줄어들며, 해상도나 화질이 낮아질 수 있습니다.</p>
+              <img alt="첨부할 슬라이드 사진" hidden>
+              <button class="button button-outline button-small" type="button" data-clear-photo hidden>사진 선택 취소</button>
+              <p class="field-optional" role="status" data-photo-status></p>
+            </div>
+            <p class="field-optional">별도 사진이 없으면 연결한 게시글의 대표 이미지를 사용합니다.</p>
             <div class="slide-image-controls form-actions">
               <label data-existing-slide-image hidden><input type="checkbox" name="removeImage">현재 추가 이미지 빼기</label>
             </div>
           </div>
           <label><span>이미지 설명 <small class="field-optional">선택</small></span><input name="alt" maxlength="120"></label>
           <label><span>외부 기사 주소 <small class="field-optional">선택</small></span><input type="url" name="article" maxlength="1200"></label>
-          <div class="form-actions"><button type="submit" class="button button-small">저장</button><button type="button" class="button button-outline button-small" data-reset-slides>기본 설정으로 복원</button></div>
+          <div class="form-actions">
+            <button type="submit" class="button button-small">저장</button>
+            <button type="button" class="button button-outline button-small post-delete" data-delete-slide hidden>슬라이드 삭제</button>
+            <button type="button" class="button button-outline button-small" data-reset-slides>기본 설정으로 복원</button>
+          </div>
+          </fieldset>
           <p id="editor-status" role="status"></p>
         </form>
       </div>

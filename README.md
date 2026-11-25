@@ -1,6 +1,16 @@
 # jachicoop-website
 자치교육 사회적협동조합 길잡이 홈페이지입니다.
 
+## 기존 홈페이지에 사진 첨부와 슬라이드 편집 업데이트 적용하기
+
+1. Vercel의 홈페이지 프로젝트 **Settings → Environment Variables**에서 두 변수를 **Production**으로 설정합니다.
+   - `IMAGEKIT_PRIVATE_KEY`는 **Secret**으로 추가하고 ImageKit의 **Private Key**를 넣습니다.
+   - `IMAGEKIT_PUBLIC_KEY`는 **Config**로 추가하고 ImageKit의 **Public Key**를 넣습니다.
+2. Firebase 콘솔에서 현재 프로젝트의 **Firestore Database → Rules**를 열고 `firestore.rules`를 게시합니다. 마지막 슬라이드를 지울 때도 빈 목록을 저장할 수 있도록 허용하는 변경입니다.
+3. ZIP에 들어 있는 변경 파일을 기존 GitHub 저장소의 같은 위치에 올립니다. `api/imagekit-upload.mjs`는 저장소 루트의 `api` 폴더에 넣습니다. Vercel 배포가 끝난 뒤 홈페이지 하단의 **관리자 로그인**에서 사진 첨부를 확인합니다.
+
+사진은 ImageKit의 `/jachicoop` 폴더에 저장되고, 게시글과 슬라이드에는 사진 주소가 저장됩니다. 대표 사진이나 슬라이드를 화면에서 빼도 ImageKit 파일은 남습니다. 저장공간을 정리할 때는 다른 곳에서 사용 중인지 확인한 뒤 ImageKit의 **Media Library**에서 파일을 삭제할 수 있습니다.
+
 ## Firestore를 처음 연결하기
 
 Vercel에서 홈페이지를 배포하고 Firebase의 Spark 무료 요금제로 게시글과 행사 슬라이드를 저장합니다.
@@ -18,5 +28,5 @@ Vercel에서 홈페이지를 배포하고 Firebase의 Spark 무료 요금제로 
 - 관리자 화면에서 테스트용 공지 한 건을 저장합니다.
 - 시크릿 창에서 공지사항을 열어 같은 글이 보이는지 확인합니다.
 - 관리자 화면에서 글을 수정하고 삭제해 각각 반영되는지 확인합니다.
-- 저장 데이터가 없는 게시판과 메인 슬라이드는 HTML에 포함된 기본 데이터를 보여줍니다.
-- 사진은 직접 열리는 HTTPS 이미지 주소를, 첨부 문서는 방문자에게 공유할 수 있는 HTTPS 주소를 넣습니다. 공개 글에 연결한 주소는 방문자에게 표시됩니다.
+- 저장한 슬라이드 설정이 없는 홈페이지에는 기본 슬라이드가 표시됩니다. 마지막 슬라이드까지 삭제하면 홈에서 슬라이드가 숨겨집니다.
+- 사진은 JPG, PNG 또는 WebP를 첨부합니다. 5MB를 넘는 사진은 업로드 전에 자동으로 줄입니다. 첨부 문서는 방문자에게 공유할 수 있는 HTTPS 주소를 넣습니다.
